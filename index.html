@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Churrasqueira Giratória — Calculadora</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #222;
+      --text: #e5e5e5;
+      --muted: #888;
+      --accent: #f97316;
+      --accent-glow: rgba(249, 115, 22, 0.15);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      padding: 40px 0 60px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .header .emoji {
+      font-size: 48px;
+      display: block;
+      margin-bottom: 12px;
+      animation: flame 2s ease-in-out infinite;
+    }
+    @keyframes flame {
+      0%, 100% { transform: scale(1) rotate(-2deg); }
+      50% { transform: scale(1.08) rotate(2deg); }
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+    .header p {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* Form */
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .field label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .field .input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .field input, .field select {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--accent);
+    }
+    .field .unit {
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+      min-width: 24px;
+    }
+    .field select {
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+
+    /* Meat type selector */
+    .meat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .meat-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .meat-btn:hover { border-color: #444; }
+    .meat-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+    .meat-btn .meat-emoji { font-size: 24px; }
+    .meat-btn .meat-name {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+    .meat-btn.active .meat-name { color: var(--accent); }
+
+    /* Calculate button */
+    .calc-btn {
+      margin-top: 8px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: -0.3px;
+    }
+    .calc-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .calc-btn:active { transform: translateY(0); }
+
+    /* Result */
+    .result {
+      margin-top: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      display: none;
+      animation: slideUp 0.4s ease-out;
+    }
+    .result.show { display: block; }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .result-main {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .result-value {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -2px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .result-unit {
+      font-size: 16px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .result-details {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .detail-label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .detail-value {
+      font-size: 14px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Gauge animation */
+    .gauge-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .gauge {
+      width: 160px;
+      height: 160px;
+      position: relative;
+    }
+    .gauge svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-135deg);
+    }
+    .gauge-bg {
+      fill: none;
+      stroke: var(--border);
+      stroke-width: 8;
+      stroke-linecap: round;
+    }
+    .gauge-fill {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-dasharray: 220;
+      stroke-dashoffset: 220;
+      transition: stroke-dashoffset 1s ease-out;
+      filter: drop-shadow(0 0 6px var(--accent));
+    }
+    .gauge-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    .gauge-rpm {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+    .gauge-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 2px;
+    }
+
+    /* Spinning meat preview */
+    .preview {
+      text-align: center;
+      margin: 16px 0 8px;
+    }
+    .spinning-meat {
+      font-size: 40px;
+      display: inline-block;
+      animation: none;
+    }
+    .spinning-meat.active {
+      animation: spin var(--spin-duration, 4s) linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .tip {
+      margin-top: 16px;
+      padding: 12px 14px;
+      background: rgba(249, 115, 22, 0.06);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .tip strong { color: var(--text); }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 16px;
+      font-size: 11px;
+      color: #444;
+    }
+    .footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <span class="emoji">🔥</span>
+      <h1>Churrasqueira Giratória</h1>
+      <p>Calcule a velocidade ideal de rotação</p>
+    </div>
+
+    <div class="form">
+      <!-- Tipo de carne -->
+      <div class="field">
+        <label>Tipo de carne</label>
+        <div class="meat-grid">
+          <button class="meat-btn active" data-meat="costela" data-density="0.85" data-tip="Costela gosta de fogo baixo e giro lento. Paciência é o tempero.">
+            <span class="meat-emoji">🥩</span>
+            <span class="meat-name">Costela</span>
+          </button>
+          <button class="meat-btn" data-meat="picanha" data-density="0.95" data-tip="Picanha pede giro médio pra selar por fora e manter o sumo.">
+            <span class="meat-emoji">🥩</span>
+            <span class="meat-name">Picanha</span>
+          </button>
+          <button class="meat-btn" data-meat="frango" data-density="0.75" data-tip="Frango é leve — giro pode ser um pouco mais rápido. Cuidado pra não ressecar.">
+            <span class="meat-emoji">🍗</span>
+            <span class="meat-name">Frango</span>
+          </button>
+          <button class="meat-btn" data-meat="linguica" data-density="0.90" data-tip="Linguiça é uniforme — giro constante funciona bem.">
+            <span class="meat-emoji">🌭</span>
+            <span class="meat-name">Linguiça</span>
+          </button>
+          <button class="meat-btn" data-meat="pernil" data-density="0.88" data-tip="Pernil pesado = giro bem lento. Deixa o calor penetrar.">
+            <span class="meat-emoji">🍖</span>
+            <span class="meat-name">Pernil</span>
+          </button>
+          <button class="meat-btn" data-meat="outro" data-density="0.90" data-tip="Ajuste conforme necessário. Na dúvida, gire devagar.">
+            <span class="meat-emoji">🍽️</span>
+            <span class="meat-name">Outro</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Peso -->
+      <div class="field">
+        <label>Peso total da carne</label>
+        <div class="input-row">
+          <input type="number" id="peso" placeholder="Ex: 5" min="0.1" max="50" step="0.1" value="">
+          <span class="unit">kg</span>
+        </div>
+      </div>
+
+      <!-- Diâmetro -->
+      <div class="field">
+        <label>Diâmetro da churrasqueira</label>
+        <div class="input-row">
+          <input type="number" id="diametro" placeholder="100" min="30" max="200" step="1" value="100">
+          <span class="unit">cm</span>
+        </div>
+      </div>
+
+      <!-- Intensidade do fogo -->
+      <div class="field">
+        <label>Intensidade do fogo</label>
+        <div class="input-row">
+          <select id="fogo">
+            <option value="0.7">🔥 Baixo — brasa mansa</option>
+            <option value="1.0" selected>🔥🔥 Médio — ideal</option>
+            <option value="1.3">🔥🔥🔥 Alto — selar rápido</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="calc-btn" onclick="calcular()">Calcular Velocidade</button>
+    </div>
+
+    <!-- Resultado -->
+    <div class="result" id="resultado">
+      <div class="result-title">Velocidade Recomendada</div>
+
+      <div class="gauge-container">
+        <div class="gauge">
+          <svg viewBox="0 0 100 100">
+            <circle class="gauge-bg" cx="50" cy="50" r="35"
+              stroke-dasharray="220" stroke-dashoffset="0"
+              transform="rotate(0 50 50)"
+              pathLength="220" />
+            <circle class="gauge-fill" id="gauge-arc" cx="50" cy="50" r="35"
+              pathLength="220" />
+          </svg>
+          <div class="gauge-text">
+            <div class="gauge-rpm" id="rpm-display">0</div>
+            <div class="gauge-label">RPM</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview">
+        <span class="spinning-meat" id="spinning-meat">🥩</span>
+      </div>
+
+      <div class="result-details">
+        <div class="detail-row">
+          <span class="detail-label">Velocidade linear</span>
+          <span class="detail-value" id="vel-linear">—</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Tempo por volta</span>
+          <span class="detail-value" id="tempo-volta">—</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Torque necessário</span>
+          <span class="detail-value" id="torque">—</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Força centrípeta</span>
+          <span class="detail-value" id="forca">—</span>
+        </div>
+      </div>
+
+      <div class="tip" id="tip-text"></div>
+    </div>
+
+    <div class="footer">
+      Feito com 🔥 por <a href="https://instagram.com/adriiiano.jr" target="_blank">@adriiiano.jr</a> + Néctar IA
+    </div>
+  </div>
+
+  <script>
+    // Meat selection
+    document.querySelectorAll('.meat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.meat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    function getSelectedMeat() {
+      const active = document.querySelector('.meat-btn.active');
+      return {
+        name: active.dataset.meat,
+        density: parseFloat(active.dataset.density),
+        tip: active.dataset.tip,
+        emoji: active.querySelector('.meat-emoji').textContent,
+      };
+    }
+
+    function calcular() {
+      const peso = parseFloat(document.getElementById('peso').value);
+      const diametroCm = parseFloat(document.getElementById('diametro').value);
+      const fogoFactor = parseFloat(document.getElementById('fogo').value);
+      const meat = getSelectedMeat();
+
+      if (!peso || peso <= 0) {
+        document.getElementById('peso').focus();
+        document.getElementById('peso').style.borderColor = '#ef4444';
+        setTimeout(() => document.getElementById('peso').style.borderColor = '', 1500);
+        return;
+      }
+
+      // === PHYSICS ===
+      // Diâmetro em metros
+      const D = diametroCm / 100;
+      const R = D / 2; // raio em metros
+
+      // Base RPM calculation:
+      // - Rotisserie ideal: ~1-6 RPM depending on weight
+      // - Heavier meat = slower rotation for even cooking
+      // - Larger diameter = slightly slower (more distance to cover)
+      //
+      // Formula: RPM = baseRPM * (1 / (1 + peso * densityFactor)) * fireAdjust * diameterAdjust
+      //
+      // baseRPM = 5 (sweet spot for ~1kg on 1m diameter)
+      // As weight increases, RPM decreases logarithmically
+
+      const baseRPM = 5;
+      const weightFactor = Math.log(1 + peso * meat.density) / Math.log(2); // logarithmic dampening
+      const diameterAdjust = 1 / (D * 1.2); // normalized to 1m = ~0.83
+
+      let rpm = (baseRPM / (0.5 + weightFactor * 0.5)) * fogoFactor * diameterAdjust;
+
+      // Clamp to reasonable range
+      rpm = Math.max(0.5, Math.min(8, rpm));
+
+      // Derived values
+      const omega = (2 * Math.PI * rpm) / 60; // rad/s
+      const vLinear = omega * R; // m/s
+      const tempoPorVolta = 60 / rpm; // seconds
+      const torque = peso * 9.81 * R * meat.density; // N·m (simplified)
+      const forcaCentripeta = peso * omega * omega * R; // N
+
+      // === DISPLAY ===
+      const resultDiv = document.getElementById('resultado');
+      resultDiv.classList.add('show');
+
+      // Animate RPM counter
+      const rpmDisplay = document.getElementById('rpm-display');
+      animateValue(rpmDisplay, 0, rpm, 800);
+
+      // Gauge
+      const maxRPM = 8;
+      const fraction = rpm / maxRPM;
+      const arc = document.getElementById('gauge-arc');
+      // 220 is full arc (270 degrees), so offset = 220 * (1 - fraction)
+      const targetOffset = 220 * (1 - fraction * 0.75); // 75% of arc = 270deg
+      setTimeout(() => {
+        arc.style.strokeDashoffset = targetOffset;
+      }, 100);
+
+      // Details
+      document.getElementById('vel-linear').textContent = `${(vLinear * 100).toFixed(1)} cm/s`;
+      document.getElementById('tempo-volta').textContent = `${tempoPorVolta.toFixed(1)}s`;
+      document.getElementById('torque').textContent = `${torque.toFixed(2)} N·m`;
+      document.getElementById('forca').textContent = `${forcaCentripeta.toFixed(3)} N`;
+
+      // Tip
+      document.getElementById('tip-text').innerHTML = `<strong>Dica:</strong> ${meat.tip}`;
+
+      // Spinning meat preview
+      const spinMeat = document.getElementById('spinning-meat');
+      spinMeat.textContent = meat.emoji;
+      const spinDuration = tempoPorVolta;
+      spinMeat.style.setProperty('--spin-duration', `${spinDuration}s`);
+      spinMeat.classList.remove('active');
+      void spinMeat.offsetWidth; // force reflow
+      spinMeat.classList.add('active');
+
+      // Scroll to result
+      setTimeout(() => {
+        resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 200);
+    }
+
+    function animateValue(el, start, end, duration) {
+      const startTime = performance.now();
+      const decimals = end < 1 ? 2 : 1;
+
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+        const current = start + (end - start) * eased;
+        el.textContent = current.toFixed(decimals);
+        if (progress < 1) requestAnimationFrame(update);
+      }
+      requestAnimationFrame(update);
+    }
+
+    // Auto-calculate on Enter
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') calcular();
+      });
+    });
+  </script>
+</body>
+</html>
