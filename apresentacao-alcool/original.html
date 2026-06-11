@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Álcool (Etanol) — Seminário de Psicologia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#13100B; --bg-2:#181308; --surface:#211A0F; --surface-2:#2A2113;
+    --line:#3A2E1B; --line-soft:#2E2517;
+    --honey:#E8C57E; --amber:#E0AE52; --amber-deep:#C98F35; --gold-dim:#A8843C;
+    --wine:#B65066; --wine-deep:#7E2F3E;
+    --brick:#D5765A; --brick-dim:#9E4F3B;
+    --ink:#ECEADE; --ink-dim:#B8AE9C; --ink-faint:#8A7E6A;
+    --paper:#F1EDE3;
+    --maxw:1180px;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:#090806;
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  .stage{
+    position:fixed; inset:0; display:grid; place-items:center; overflow:hidden;
+    background:radial-gradient(1500px 1000px at 50% 45%, #131009, #090806);
+  }
+
+  /* ---------- top brand bar ---------- */
+  .topbar{
+    position:absolute; top:0; left:0; right:0; z-index:40;
+    padding:28px 90px;
+    background:linear-gradient(to bottom, rgba(19,16,11,.9), rgba(19,16,11,0));
+    pointer-events:none;
+  }
+  .bar-in{max-width:1180px; margin:0 auto; display:flex; align-items:center}
+  .brand{display:flex; align-items:center; gap:11px; pointer-events:auto}
+  .brand svg{flex:0 0 auto}
+  .brand .t{line-height:1.15}
+  .brand .t b{font-weight:600; font-size:15px; letter-spacing:.2px}
+  .brand .t span{display:block; font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:2px; color:var(--ink-faint); text-transform:uppercase; margin-top:1px}
+  .counter{display:flex; align-items:center; gap:14px; pointer-events:auto}
+  .counter .num{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--ink-dim); letter-spacing:1px}
+  .counter .num b{color:var(--amber); font-weight:500}
+  .fsbtn{
+    pointer-events:auto; cursor:pointer; width:38px; height:38px; border-radius:9px;
+    border:1px solid var(--line); background:rgba(255,255,255,.02); color:var(--ink-dim);
+    display:grid; place-items:center; transition:.2s var(--ease);
+  }
+  .fsbtn:hover{border-color:var(--amber-deep); color:var(--amber)}
+
+  .progress{position:absolute; top:0; left:0; right:0; height:3px; z-index:50; background:rgba(255,255,255,.05)}
+  .progress .bar{height:100%; width:0; background:linear-gradient(90deg,var(--amber-deep),var(--honey)); transition:width .5s var(--ease)}
+
+  /* ---------- deck (16:9 stage) ---------- */
+  .deck{
+    position:relative; width:1600px; height:900px; flex:0 0 auto; z-index:10; overflow:hidden;
+    transform:scale(var(--s,1)); transform-origin:center center;
+    background:
+      radial-gradient(1400px 800px at 80% -8%, rgba(224,174,82,.12), transparent 60%),
+      radial-gradient(1100px 700px at 2% 110%, rgba(182,80,102,.08), transparent 55%),
+      var(--bg);
+    box-shadow:0 40px 130px rgba(0,0,0,.6);
+  }
+  .slide{
+    position:absolute; inset:0; display:flex; flex-direction:column; justify-content:flex-start;
+    padding:100px 90px 64px;
+    opacity:0; visibility:hidden; transform:translateY(14px);
+    transition:opacity .5s var(--ease), transform .5s var(--ease), visibility .5s;
+    overflow:hidden;
+  }
+  .slide .wrap{margin-top:auto; margin-bottom:auto}
+  #cover{justify-content:center}
+  .slide.active{opacity:1; visibility:visible; transform:none}
+  .wrap{width:100%; max-width:var(--maxw); margin:0 auto}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:3px; text-transform:uppercase;
+    color:var(--amber); display:flex; align-items:center; gap:12px; margin-bottom:18px;
+  }
+  .eyebrow::before{content:""; width:34px; height:1px; background:var(--amber-deep); opacity:.7}
+
+  h1{font-family:'Fraunces',serif; font-weight:600; letter-spacing:-.5px; line-height:1.02}
+  h2{font-family:'Fraunces',serif; font-weight:600; font-size:46px; letter-spacing:-.4px; line-height:1.05; margin-bottom:8px}
+  h2 .em{color:var(--amber); font-style:italic; font-weight:500}
+  .lead{font-size:18px; color:var(--ink-dim); line-height:1.6; max-width:62ch; margin-bottom:30px}
+
+  /* reveal helper */
+  .r{opacity:0; transform:translateY(12px); transition:opacity .55s var(--ease), transform .55s var(--ease)}
+  .active .r{opacity:1; transform:none}
+  .active .r{transition-delay:calc(var(--i,0) * 70ms)}
+  @media (prefers-reduced-motion:reduce){ .r{opacity:1!important; transform:none!important} .slide{transition:opacity .2s} }
+
+  /* ---------- cover ---------- */
+  .cover{display:grid; grid-template-columns:1.15fr .85fr; gap:40px; align-items:center}
+  .cover .ttl h1{font-size:104px}
+  .cover .ttl .sub-latin{font-family:'Fraunces',serif; font-style:italic; font-weight:400; font-size:27px; color:var(--ink-dim); margin-top:6px}
+  .cover .formula{font-family:'IBM Plex Mono',monospace; font-size:14px; letter-spacing:3px; color:var(--amber); margin-top:22px; text-transform:uppercase}
+  .cover .meta{margin-top:38px; padding-top:22px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:6px}
+  .cover .meta .row{display:flex; align-items:center; gap:10px; font-size:14px; color:var(--ink-dim)}
+  .cover .meta .row b{color:var(--ink); font-weight:600}
+  .cover .meta .dot{width:5px; height:5px; border-radius:50%; background:var(--amber); flex:0 0 auto}
+
+  .mol-stage{
+    position:relative; aspect-ratio:1/1; border-radius:20px;
+    background:radial-gradient(120% 120% at 30% 20%, rgba(224,174,82,.10), rgba(255,255,255,.02));
+    border:1px solid var(--line); display:grid; place-items:center; overflow:hidden;
+  }
+  .mol-stage::after{content:"ETANOL · C₂H₆O"; position:absolute; bottom:14px; left:50%; transform:translateX(-50%); font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:3px; color:var(--ink-faint)}
+  .mol-stage svg{width:78%; height:78%}
+
+  /* ---------- generic layout helpers ---------- */
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:26px; align-items:start}
+  .grid-12{display:grid; grid-template-columns:1.05fr .95fr; gap:34px; align-items:center}
+
+  .num-list{display:flex; flex-direction:column; gap:17px; margin-top:6px}
+  .nl-item{display:grid; grid-template-columns:30px 1fr; gap:14px; align-items:start}
+  .nl-item .n{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--amber); padding-top:3px}
+  .nl-item .b{font-weight:600; font-size:16.5px; margin-bottom:3px; color:var(--ink)}
+  .nl-item .d{font-size:14.5px; color:var(--ink-dim); line-height:1.55}
+
+  .chips{display:flex; flex-wrap:wrap; gap:9px; margin-top:26px}
+  .chip{
+    display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:30px;
+    border:1px solid var(--line); background:rgba(255,255,255,.02); font-size:13.5px; color:var(--ink-dim);
+  }
+  .chip svg{opacity:.85}
+
+  .src{
+    margin-top:30px; font-family:'IBM Plex Mono',monospace; font-size:11.5px; line-height:1.7;
+    color:var(--ink-faint); border-left:2px solid var(--line); padding-left:13px; max-width:78ch;
+  }
+  .src b{color:var(--ink-dim); font-weight:500}
+
+  /* ---------- info cards ---------- */
+  .cards{display:grid; gap:16px}
+  .cards.c2{grid-template-columns:1fr 1fr}
+  .cards.c3{grid-template-columns:repeat(3,1fr)}
+  .card{
+    border:1px solid var(--line); border-radius:15px; padding:20px 20px 18px;
+    background:linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,0));
+  }
+  .card .ico{width:34px; height:34px; border-radius:9px; display:grid; place-items:center; background:rgba(224,174,82,.12); margin-bottom:13px}
+  .card h3{font-family:'Fraunces',serif; font-weight:600; font-size:19px; margin-bottom:9px; letter-spacing:-.2px}
+  .card ul{list-style:none; display:flex; flex-direction:column; gap:8px}
+  .card li{font-size:14px; color:var(--ink-dim); line-height:1.5; padding-left:16px; position:relative}
+  .card li::before{content:""; position:absolute; left:0; top:8px; width:5px; height:5px; border-radius:50%; background:var(--amber-deep)}
+  .card.warn li::before{background:var(--brick)}
+  .card.warn .ico{background:rgba(213,118,90,.14)}
+
+  /* ---------- photo trio ---------- */
+  .trio{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:8px}
+  .ph{position:relative; border-radius:14px; overflow:hidden; border:1px solid var(--line); background:var(--surface)}
+  .ph .frame{aspect-ratio:1/1; width:100%; position:relative; overflow:hidden}
+  .ph img{width:100%; height:100%; object-fit:cover; display:block}
+  .ph .fallback{position:absolute; inset:0; display:none; place-items:center; background:
+    repeating-linear-gradient(45deg, rgba(255,255,255,.025) 0 12px, transparent 12px 24px), var(--surface-2)}
+  .ph.failed img{display:none}
+  .ph.failed .fallback{display:grid}
+  .ph .cap{padding:11px 14px; font-size:13px; color:var(--ink-dim); display:flex; align-items:baseline; gap:8px}
+  .ph .cap b{color:var(--ink); font-weight:600; font-size:13.5px}
+  .ph .cap .pct{margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--amber)}
+
+  /* ---------- brain diagram ---------- */
+  .diagram{
+    border:1px solid var(--line); border-radius:18px; padding:18px;
+    background:radial-gradient(110% 120% at 50% 0%, rgba(224,174,82,.06), rgba(255,255,255,.01));
+  }
+  .diagram svg{width:100%; height:auto; display:block}
+  .legend{display:flex; flex-direction:column; gap:13px}
+  .lg{display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:start}
+  .lg .pin{width:13px; height:13px; border-radius:50%; margin-top:4px; flex:0 0 auto; border:2px solid rgba(255,255,255,.25)}
+  .lg .b{font-weight:600; font-size:15px; color:var(--ink)}
+  .lg .d{font-size:13.5px; color:var(--ink-dim); line-height:1.5}
+
+  /* neurotransmitter row */
+  .nt-row{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:4px}
+  .nt{border:1px solid var(--line); border-radius:13px; padding:16px; background:rgba(255,255,255,.02)}
+  .nt .tag{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--ink-faint)}
+  .nt .name{font-family:'Fraunces',serif; font-size:21px; font-weight:600; margin:5px 0 4px; display:flex; align-items:center; gap:8px}
+  .nt .arrow{font-size:15px; font-weight:700}
+  .nt.up .arrow{color:var(--brick)} .nt.down .arrow{color:var(--honey)} .nt.rew .arrow{color:var(--amber)}
+  .nt p{font-size:13px; color:var(--ink-dim); line-height:1.5}
+
+  /* ---------- metabolism flow ---------- */
+  .flow{display:flex; align-items:stretch; gap:0; margin-top:10px; flex-wrap:wrap}
+  .step{flex:1 1 0; min-width:120px; border:1px solid var(--line); border-radius:13px; padding:15px 14px; background:rgba(255,255,255,.02); position:relative; text-align:center}
+  .step .si{width:40px; height:40px; margin:0 auto 9px; border-radius:11px; display:grid; place-items:center; background:rgba(224,174,82,.12)}
+  .step .st{font-weight:600; font-size:14.5px; margin-bottom:3px}
+  .step .sd{font-size:12px; color:var(--ink-faint); line-height:1.45; font-family:'IBM Plex Mono',monospace}
+  .step.tox{border-color:var(--brick-dim); background:rgba(213,118,90,.07)}
+  .step.tox .si{background:rgba(213,118,90,.16)}
+  .arr{display:grid; place-items:center; flex:0 0 30px; color:var(--amber-deep); font-size:18px; align-self:center}
+  .arr .en{font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--ink-faint); display:block; text-align:center; margin-top:-4px}
+
+  /* ---------- intoxication scale ---------- */
+  .scale{display:flex; flex-direction:column; gap:0; margin-top:6px; border:1px solid var(--line); border-radius:15px; overflow:hidden}
+  .lvl{display:grid; grid-template-columns:118px 1fr; gap:0; border-bottom:1px solid var(--line-soft)}
+  .lvl:last-child{border-bottom:none}
+  .lvl .bac{padding:14px 16px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--ink); display:flex; flex-direction:column; gap:2px; justify-content:center; border-right:1px solid var(--line-soft)}
+  .lvl .bac span{font-size:10.5px; color:var(--ink-faint); letter-spacing:.5px}
+  .lvl .desc{padding:13px 18px; display:flex; align-items:center; gap:13px; font-size:14px; color:var(--ink-dim); line-height:1.45}
+  .lvl .stage{font-weight:600; color:var(--ink)}
+  .lvl .bar{width:5px; align-self:stretch; flex:0 0 5px; border-radius:3px}
+
+  /* ---------- stat band ---------- */
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:6px}
+  .stat{border:1px solid var(--line); border-radius:14px; padding:18px 16px; background:linear-gradient(180deg, rgba(224,174,82,.05), rgba(255,255,255,0))}
+  .stat .big{font-family:'Fraunces',serif; font-weight:600; font-size:37px; color:var(--honey); line-height:1; letter-spacing:-.5px}
+  .stat .lab{font-size:13px; color:var(--ink-dim); line-height:1.45; margin-top:9px}
+
+  .factbox{display:flex; flex-direction:column; gap:13px; margin-top:4px}
+  .fact{display:grid; grid-template-columns:auto 1fr; gap:13px; align-items:start; border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:rgba(255,255,255,.02)}
+  .fact .fi{width:34px; height:34px; border-radius:9px; display:grid; place-items:center; background:rgba(224,174,82,.1); flex:0 0 auto}
+  .fact .b{font-weight:600; font-size:15px; color:var(--ink); margin-bottom:2px}
+  .fact .d{font-size:13.5px; color:var(--ink-dim); line-height:1.5}
+
+  .lawbox{
+    margin-top:20px; border:1px solid var(--amber-deep); border-radius:14px; padding:18px 20px;
+    background:linear-gradient(180deg, rgba(224,174,82,.09), rgba(255,255,255,0)); display:grid; grid-template-columns:auto 1fr; gap:15px; align-items:start;
+  }
+  .lawbox .li{width:38px; height:38px; border-radius:10px; display:grid; place-items:center; background:rgba(224,174,82,.16); flex:0 0 auto}
+  .lawbox .b{font-family:'Fraunces',serif; font-weight:600; font-size:18px; margin-bottom:5px}
+  .lawbox .d{font-size:14px; color:var(--ink-dim); line-height:1.55}
+
+  /* ---------- references ---------- */
+  .refs{columns:2; column-gap:34px; margin-top:8px}
+  .ref{break-inside:avoid; display:grid; grid-template-columns:26px 1fr; gap:11px; padding:9px 0; border-bottom:1px solid var(--line-soft)}
+  .ref .rn{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--amber)}
+  .ref .rt{font-size:13.5px; color:var(--ink-dim); line-height:1.45}
+  .ref .rt b{color:var(--ink); font-weight:600; display:block; margin-bottom:1px}
+  .ref .rt span{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-faint)}
+
+  .disc{margin-top:26px; font-size:12.5px; color:var(--ink-faint); line-height:1.6; max-width:80ch; border-top:1px solid var(--line); padding-top:16px}
+
+  /* ---------- nav ---------- */
+  .nav{
+    position:fixed; bottom:0; left:0; right:0; z-index:40;
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding:16px 80px;
+    background:linear-gradient(to top, rgba(19,16,11,.94), rgba(19,16,11,0));
+  }
+  .navbtn{
+    cursor:pointer; display:inline-flex; align-items:center; gap:9px; padding:11px 18px; border-radius:11px;
+    border:1px solid var(--line); background:rgba(255,255,255,.03); color:var(--ink); font-size:14px; font-weight:500;
+    font-family:inherit; transition:.2s var(--ease);
+  }
+  .navbtn:hover:not(:disabled){border-color:var(--amber-deep); color:var(--amber); background:rgba(224,174,82,.06)}
+  .navbtn:disabled{opacity:.3; cursor:not-allowed}
+  .dots{display:flex; align-items:center; gap:9px}
+  .dot-b{width:8px; height:8px; border-radius:50%; border:none; padding:0; cursor:pointer; background:var(--line); transition:.25s var(--ease)}
+  .dot-b.on{background:var(--amber); transform:scale(1.35)}
+  .hint{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-faint); letter-spacing:1px}
+
+  .nav-removed{display:none}
+
+
+  /* ---------- exportar para PDF (Imprimir) ---------- */
+  @media print{
+    @page{ size:1600px 900px; margin:0 }
+    html,body{overflow:visible;background:#fff}
+    .stage{position:static;display:block;height:auto;background:none;overflow:visible;place-items:initial}
+    .deck{position:static;transform:none!important;width:1600px;height:auto;box-shadow:none;overflow:visible}
+    .topbar,.progress{display:none}
+    .slide{
+      position:relative;inset:auto;opacity:1!important;visibility:visible!important;pointer-events:auto;
+      transform:none!important;width:1600px;height:900px;overflow:hidden;
+      page-break-after:always;break-after:page;background:var(--bg)
+    }
+    .slide:last-child{page-break-after:auto;break-after:auto}
+    .slide .wrap{margin:auto}
+    .r{opacity:1!important;transform:none!important;animation:none!important}
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+<div class="deck" id="deck">
+
+<div class="progress"><div class="bar" id="prog"></div></div>
+
+<div class="topbar"><div class="bar-in">
+  <div class="brand">
+    <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="15" stroke="#C98F35" stroke-width="1.2" opacity=".5"/>
+      <path d="M11 8h10l-1.2 7.5a3.8 3.8 0 0 1-7.6 0L11 8Z" stroke="#E0AE52" stroke-width="1.4" fill="rgba(224,174,82,.12)"/>
+      <path d="M16 19.5V25M12.5 25h7" stroke="#E0AE52" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>
+    <div class="t"><b>Etanol</b><span>Seminário · Psicologia</span></div>
+  </div>
+</div></div>
+
+
+  <!-- ============ 1 · COVER ============ -->
+  <section class="slide active" id="cover">
+    <div class="wrap cover">
+      <div class="ttl">
+        <div class="eyebrow r" style="--i:0">Psicologia · Seminário sobre Drogas</div>
+        <h1 class="r" style="--i:1">Álcool</h1>
+        <div class="sub-latin r" style="--i:2">o etanol das bebidas — a droga psicoativa mais consumida do Brasil</div>
+        <div class="formula r" style="--i:3">CH₃CH₂OH · Depressor do Sistema Nervoso Central</div>
+        <div class="meta r" style="--i:4">
+          <div class="row"><span class="dot"></span>O que é · Efeitos · Malefícios · Curiosidades</div>
+          <div class="row"><span class="dot"></span><b>Dados:</b>&nbsp;OMS/OPAS · CISA · Fiocruz · LENAD III · Manual MSD</div>
+        </div>
+      </div>
+      <div class="mol-stage r" style="--i:3">
+        <!-- etanol ball-and-stick -->
+        <svg viewBox="0 0 460 460" fill="none">
+          <!-- bonds -->
+          <g stroke="#C9A24A" stroke-width="9" stroke-linecap="round">
+            <line x1="150" y1="270" x2="250" y2="210"/>
+            <line x1="250" y1="210" x2="350" y2="270"/>
+            <line x1="350" y1="270" x2="405" y2="232"/>
+          </g>
+          <g stroke="#6E5A30" stroke-width="6" stroke-linecap="round" opacity=".8">
+            <line x1="150" y1="270" x2="110" y2="210"/>
+            <line x1="150" y1="270" x2="120" y2="330"/>
+            <line x1="150" y1="270" x2="200" y2="320"/>
+            <line x1="250" y1="210" x2="220" y2="150"/>
+            <line x1="250" y1="210" x2="300" y2="160"/>
+          </g>
+          <!-- atoms -->
+          <g>
+            <!-- carbons -->
+            <circle cx="150" cy="270" r="30" fill="#2C241A" stroke="#3A2E1B" stroke-width="2"/>
+            <circle cx="250" cy="210" r="30" fill="#2C241A" stroke="#3A2E1B" stroke-width="2"/>
+            <!-- oxygen -->
+            <circle cx="350" cy="270" r="32" fill="#7E2F3E" stroke="#B65066" stroke-width="2"/>
+            <!-- hydrogens -->
+            <circle cx="110" cy="210" r="15" fill="#E8E2D2"/>
+            <circle cx="120" cy="330" r="15" fill="#E8E2D2"/>
+            <circle cx="200" cy="320" r="15" fill="#E8E2D2"/>
+            <circle cx="220" cy="150" r="15" fill="#E8E2D2"/>
+            <circle cx="300" cy="160" r="15" fill="#E8E2D2"/>
+            <circle cx="405" cy="232" r="15" fill="#E8E2D2"/>
+          </g>
+          <!-- labels -->
+          <text x="150" y="277" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="22" fill="#E0AE52" font-weight="600">C</text>
+          <text x="250" y="217" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="22" fill="#E0AE52" font-weight="600">C</text>
+          <text x="350" y="278" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="23" fill="#F1D6B0" font-weight="600">O</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2 · O QUE É ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="eyebrow r" style="--i:0">Tópico 01 — Definição</div>
+      <div class="grid-12">
+        <div>
+          <h2 class="r" style="--i:1">O que é o álcool?</h2>
+          <p class="lead r" style="--i:2">No uso comum, "álcool" é o <b style="color:var(--ink)">etanol</b> — a substância psicoativa presente em cervejas, vinhos e destilados. É produzido pela <b style="color:var(--ink)">fermentação</b> de açúcares por leveduras e é classificado como uma droga <b style="color:var(--ink)">depressora do sistema nervoso central</b>, pois desacelera a atividade do cérebro.</p>
+          <div class="num-list">
+            <div class="nl-item r" style="--i:3"><div class="n">01</div><div><div class="b">Uma droga lícita — mas droga</div><div class="d">É legalizada e culturalmente aceita, mas atua no cérebro como substância psicoativa. Estima-se que seja a segunda droga mais consumida no mundo, atrás apenas da cafeína.</div></div></div>
+            <div class="nl-item r" style="--i:4"><div class="n">02</div><div><div class="b">Depressora, não "estimulante"</div><div class="d">A euforia e a desinibição do começo vêm da supressão dos freios cerebrais — não de uma excitação real. Em doses maiores, o efeito depressor domina e reduz reflexos, fala e coordenação.</div></div></div>
+            <div class="nl-item r" style="--i:5"><div class="n">03</div><div><div class="b">Efeito dose-dependente</div><div class="d">Quanto mais se bebe, mais intenso o efeito. A mesma substância vai da leve desinibição ao estupor e ao coma alcoólico, dependendo da quantidade e da velocidade do consumo.</div></div></div>
+          </div>
+          <div class="chips">
+            <span class="chip r" style="--i:6"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#E0AE52" stroke-width="1.5"><circle cx="8" cy="8" r="6"/></svg>Substância psicoativa e tóxica</span>
+            <span class="chip r" style="--i:7"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#E0AE52" stroke-width="1.5"><path d="M8 2v12M2 8h12" stroke-linecap="round"/></svg>Pode gerar dependência</span>
+          </div>
+        </div>
+        <div class="diagram r" style="--i:4">
+          <svg viewBox="0 0 380 300" fill="none">
+            <text x="190" y="26" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="2" fill="#8A7E6A">DA FERMENTAÇÃO À TAÇA</text>
+            <!-- yeast -->
+            <circle cx="70" cy="95" r="30" fill="rgba(224,174,82,.1)" stroke="#C98F35" stroke-width="1.5"/>
+            <circle cx="62" cy="88" r="6" fill="#E0AE52"/><circle cx="78" cy="98" r="5" fill="#E0AE52" opacity=".7"/><circle cx="70" cy="105" r="4" fill="#E0AE52" opacity=".5"/>
+            <text x="70" y="148" text-anchor="middle" font-family="Inter" font-size="12" fill="#B8AE9C">Levedura</text>
+            <text x="70" y="164" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#8A7E6A">+ açúcar</text>
+            <!-- arrow -->
+            <path d="M110 95h60" stroke="#C98F35" stroke-width="1.5" marker-end="url(#ah)"/>
+            <text x="140" y="86" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#8A7E6A">fermenta</text>
+            <!-- products -->
+            <g transform="translate(200,60)">
+              <rect x="0" y="0" width="160" height="32" rx="8" fill="rgba(255,255,255,.03)" stroke="#3A2E1B"/>
+              <text x="80" y="21" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#E8C57E">Etanol (C₂H₆O)</text>
+              <rect x="0" y="42" width="160" height="32" rx="8" fill="rgba(255,255,255,.03)" stroke="#3A2E1B"/>
+              <text x="80" y="63" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" fill="#B8AE9C">+ CO₂ (gás)</text>
+            </g>
+            <!-- glass -->
+            <g transform="translate(150,190)">
+              <path d="M30 0h60l-7 46a24 24 0 0 1-46 0L30 0Z" fill="rgba(224,174,82,.14)" stroke="#E0AE52" stroke-width="2"/>
+              <path d="M60 70v22M44 92h32" stroke="#E0AE52" stroke-width="2" stroke-linecap="round"/>
+              <path d="M35 14h50" stroke="#E0AE52" stroke-width="1" opacity=".5"/>
+            </g>
+            <defs><marker id="ah" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0l6 4-6 4" fill="none" stroke="#C98F35" stroke-width="1.5"/></marker></defs>
+          </svg>
+          <p style="text-align:center; font-size:12.5px; color:var(--ink-faint); margin-top:6px; line-height:1.5">As leveduras consomem açúcar e liberam etanol e gás carbônico. Esse é o princípio de toda bebida fermentada.</p>
+        </div>
+      </div>
+      <p class="src r" style="--i:8"><b>Fontes:</b> CISA — Álcool e Sistema Nervoso Central · Manual MSD (Intoxicação e abstinência de álcool) · Wikipedia/Ethanol (depressor do SNC, 2ª droga mais consumida) · National Geographic — História do álcool.</p>
+    </div>
+  </section>
+
+  <!-- ============ 3 · TIPOS DE BEBIDA (FOTOS REAIS) ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="eyebrow r" style="--i:0">Tópico 01 — As bebidas</div>
+      <h2 class="r" style="--i:1">Uma molécula, <span class="em">muitas bebidas</span></h2>
+      <p class="lead r" style="--i:2">O etanol é sempre o mesmo. O que muda é a concentração: bebidas <b style="color:var(--ink)">fermentadas</b> (cerveja, vinho) têm menos álcool; as <b style="color:var(--ink)">destiladas</b> passam por um processo extra que concentra o etanol. O teor costuma variar de 3% a 50%.</p>
+      <div class="trio">
+        <figure class="ph r" style="--i:3">
+          <div class="frame">
+            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Crown_lager_beer_in_glass.jpg?width=520" alt="Copo de cerveja" loading="lazy" onerror="this.closest('.ph').classList.add('failed')">
+            <div class="fallback"><svg width="80" height="100" viewBox="0 0 80 100" fill="none" stroke="#C98F35" stroke-width="2"><path d="M22 18h36l-4 64a16 16 0 0 1-28 0L22 18Z" fill="rgba(224,174,82,.15)"/><path d="M26 30h28" opacity=".5"/><circle cx="34" cy="12" r="4" fill="#E8C57E" stroke="none"/><circle cx="46" cy="9" r="5" fill="#E8C57E" stroke="none"/><circle cx="40" cy="14" r="3" fill="#E8C57E" stroke="none"/></svg></div>
+          </div>
+          <figcaption class="cap"><b>Cerveja</b> fermentada de cereais <span class="pct">~3–8%</span></figcaption>
+        </figure>
+        <figure class="ph r" style="--i:4">
+          <div class="frame">
+            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Red_Wine_Glass.jpg?width=520" alt="Taça de vinho tinto" loading="lazy" onerror="this.closest('.ph').classList.add('failed')">
+            <div class="fallback"><svg width="80" height="100" viewBox="0 0 80 100" fill="none" stroke="#B65066" stroke-width="2"><path d="M24 14h32c0 22-8 34-16 34s-16-12-16-34Z" fill="rgba(182,80,102,.2)"/><path d="M40 48v32M28 80h24" stroke-linecap="round"/></svg></div>
+          </div>
+          <figcaption class="cap"><b>Vinho</b> fermentado de frutas <span class="pct">~10–14%</span></figcaption>
+        </figure>
+        <figure class="ph r" style="--i:5">
+          <div class="frame">
+            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Glencairn_Whisky_Glass.jpg?width=520" alt="Copo de destilado (whisky)" loading="lazy" onerror="this.closest('.ph').classList.add('failed')">
+            <div class="fallback"><svg width="80" height="100" viewBox="0 0 80 100" fill="none" stroke="#C98F35" stroke-width="2"><path d="M26 30h28v40a8 8 0 0 1-8 8H34a8 8 0 0 1-8-8V30Z" fill="rgba(224,174,82,.16)"/><path d="M26 58h28" opacity=".6"/></svg></div>
+          </div>
+          <figcaption class="cap"><b>Destilados</b> uísque, cachaça, vodca <span class="pct">~35–50%</span></figcaption>
+        </figure>
+      </div>
+      <div class="chips">
+        <span class="chip r" style="--i:6"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#E0AE52" stroke-width="1.5"><path d="M3 8h10M8 3v10" stroke-linecap="round"/></svg><b style="color:var(--ink);font-weight:600">"Uma dose"</b>&nbsp;≈ 14 g de etanol — uma lata de cerveja, uma taça de vinho ou uma dose de destilado têm quantidade parecida de álcool</span>
+        <span class="chip r" style="--i:7"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#E0AE52" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2" stroke-linecap="round"/></svg>No Brasil, a cerveja é a bebida mais consumida (73,5%)</span>
+      </div>
+      <p class="src r" style="--i:8"><b>Fontes:</b> Wikipedia — Alcoholic beverage (teor 3–50%; classes) · CISA — Quanto é uma dose de álcool? · LENAD III (UNIFESP/Min. Justiça, 2025) — cerveja como bebida preferida. Fotos: Wikimedia Commons.</p>
+    </div>
+  </section>
+
+  <!-- ============ 4 · CÉREBRO ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="eyebrow r" style="--i:0">Tópico 02 — Efeitos no cérebro</div>
+      <h2 class="r" style="--i:1">Como o álcool age no cérebro</h2>
+      <p class="lead r" style="--i:2">O etanol não tem um único "alvo": ele mexe com vários neurotransmissores ao mesmo tempo, acelerando os freios e desligando os aceleradores do cérebro.</p>
+      <div class="nt-row">
+        <div class="nt up r" style="--i:3">
+          <div class="tag">Inibição ↑</div>
+          <div class="name">GABA <span class="arrow">▲</span></div>
+          <p>Reforça o principal neurotransmissor <b style="color:var(--ink-dim)">calmante</b>. Daí a sedação, o relaxamento e a sonolência — efeito parecido com o de calmantes.</p>
+        </div>
+        <div class="nt down r" style="--i:4">
+          <div class="tag">Excitação ↓</div>
+          <div class="name">Glutamato <span class="arrow">▼</span></div>
+          <p>Bloqueia o principal neurotransmissor <b style="color:var(--ink-dim)">excitatório</b>, ligado à memória e ao raciocínio. Resultado: lentidão mental e falhas de memória.</p>
+        </div>
+        <div class="nt rew r" style="--i:5">
+          <div class="tag">Recompensa</div>
+          <div class="name">Dopamina <span class="arrow">◆</span></div>
+          <p>Libera dopamina no <b style="color:var(--ink-dim)">circuito do prazer</b>, gerando a sensação boa que reforça o hábito — a base neurológica da dependência.</p>
+        </div>
+      </div>
+      <div class="grid-12" style="margin-top:24px">
+        <div class="diagram r" style="--i:6">
+          <svg viewBox="0 0 440 290" fill="none">
+            <!-- brain silhouette -->
+            <path d="M95 150c-18-6-30-22-26-44 3-17 18-26 30-26 4-20 24-34 50-34 16 0 30 7 38 18 12-8 30-9 44-2 18 9 24 28 18 44 12 8 18 22 12 38-5 14-20 22-34 22M95 150c-6 22 6 44 30 52 8 18 30 28 54 24 18-3 30-14 36-28" stroke="#5A4A2E" stroke-width="2" fill="rgba(224,174,82,.04)"/>
+            <!-- regions -->
+            <g>
+              <circle cx="160" cy="92" r="11" fill="#E0AE52"/><!-- prefrontal -->
+              <circle cx="250" cy="80" r="11" fill="#B65066"/><!-- limbic/amygdala -->
+              <circle cx="300" cy="130" r="11" fill="#E8C57E"/><!-- hippocampus -->
+              <circle cx="330" cy="180" r="11" fill="#D5765A"/><!-- cerebellum -->
+              <circle cx="200" cy="160" r="11" fill="#C98F35"/><!-- reward -->
+            </g>
+            <g font-family="IBM Plex Mono, monospace" font-size="10" fill="#B8AE9C">
+              <text x="116" y="70">córtex pré-frontal</text>
+              <text x="232" y="58">sist. límbico</text>
+              <text x="318" y="128">hipocampo</text>
+              <text x="346" y="184">cerebelo</text>
+              <text x="150" y="182">recompensa</text>
+            </g>
+          </svg>
+        </div>
+        <div class="legend">
+          <div class="lg r" style="--i:7"><div class="pin" style="background:#E0AE52"></div><div><div class="b">Córtex pré-frontal</div><div class="d">Julgamento e autocontrole — primeiros a falhar: desinibição e decisões de risco.</div></div></div>
+          <div class="lg r" style="--i:8"><div class="pin" style="background:#B65066"></div><div><div class="b">Sistema límbico</div><div class="d">Emoções: o álcool amplifica humor, impulsividade e às vezes agressividade.</div></div></div>
+          <div class="lg r" style="--i:9"><div class="pin" style="background:#E8C57E"></div><div><div class="b">Hipocampo</div><div class="d">Memória. Quando muito afetado, surge o "apagão" (blackout) — a noite que não se lembra.</div></div></div>
+          <div class="lg r" style="--i:10"><div class="pin" style="background:#D5765A"></div><div><div class="b">Cerebelo</div><div class="d">Equilíbrio e coordenação: andar cambaleante e fala enrolada.</div></div></div>
+        </div>
+      </div>
+      <p class="src r" style="--i:11"><b>Fontes:</b> CISA — Álcool e Sistema Nervoso Central (GABA e glutamato) · Manual MSD · Jornal da USP — liberação de dopamina e recompensa · Clínica Jorge Jaber — sistema límbico e lobos frontais.</p>
+    </div>
+  </section>
+
+  <!-- ============ 5 · METABOLISMO (signature) ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="eyebrow r" style="--i:0">Tópico 02 — O caminho no corpo</div>
+      <h2 class="r" style="--i:1">Para onde vai o álcool</h2>
+      <p class="lead r" style="--i:2">Cerca de <b style="color:var(--ink)">90% do álcool é processado pelo fígado</b>, sempre num ritmo fixo — em média uma dose por hora. É no meio do caminho que aparece o vilão: o <b style="color:var(--ink)">acetaldeído</b>, substância tóxica responsável pela ressaca e com efeito cancerígeno.</p>
+      <div class="flow">
+        <div class="step r" style="--i:3">
+          <div class="si"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E0AE52" stroke-width="1.6"><path d="M8 3h8M10 3v4M14 3v4M9 7c-2 3-3 7-3 10a6 6 0 0 0 12 0c0-3-1-7-3-10" stroke-linecap="round"/></svg></div>
+          <div class="st">Estômago e intestino</div>
+          <div class="sd">absorção → sangue</div>
+        </div>
+        <div class="arr">→</div>
+        <div class="step r" style="--i:4">
+          <div class="si"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E0AE52" stroke-width="1.6"><path d="M4 6c5-2 11-2 16 0 0 8-3 12-8 12S4 14 4 6Z" stroke-linejoin="round"/></svg></div>
+          <div class="st">Fígado · ADH</div>
+          <div class="sd">≈90% metabolizado</div>
+        </div>
+        <div class="arr">→<span class="en">enzima</span></div>
+        <div class="step tox r" style="--i:5">
+          <div class="si"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D5765A" stroke-width="1.6"><path d="M12 3v8M12 3l-3 4M12 3l3 4" stroke-linecap="round"/><circle cx="12" cy="16" r="5"/><path d="M12 14v2.5" stroke-linecap="round"/></svg></div>
+          <div class="st">Acetaldeído</div>
+          <div class="sd">tóxico · cancerígeno</div>
+        </div>
+        <div class="arr">→<span class="en">ALDH</span></div>
+        <div class="step r" style="--i:6">
+          <div class="si"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E0AE52" stroke-width="1.6"><path d="M5 12h14M12 5v14" stroke-linecap="round" opacity=".5"/><circle cx="12" cy="12" r="8"/></svg></div>
+          <div class="st">Acetato</div>
+          <div class="sd">→ CO₂ + água</div>
+        </div>
+      </div>
+      <div class="cards c3" style="margin-top:24px">
+        <div class="card r" style="--i:7">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#E0AE52" stroke-width="1.6"><circle cx="10" cy="10" r="7"/><path d="M10 6v4l3 2" stroke-linecap="round"/></svg></div>
+          <h3>Ritmo fixo</h3>
+          <ul><li>O fígado processa cerca de uma dose por hora — não há como "acelerar" com café, banho frio ou comida.</li><li>Beber rápido faz o álcool se acumular no sangue mais depressa que a eliminação.</li></ul>
+        </div>
+        <div class="card warn r" style="--i:8">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#D5765A" stroke-width="1.6"><path d="M10 2L2 17h16L10 2Z" stroke-linejoin="round"/><path d="M10 8v4M10 14.5v.5" stroke-linecap="round"/></svg></div>
+          <h3>A ressaca</h3>
+          <ul><li>Dor de cabeça, náusea e mal-estar vêm do acúmulo de acetaldeído somado à desidratação.</li><li>O álcool é diurético: faz urinar mais e desidrata o corpo.</li></ul>
+        </div>
+        <div class="card r" style="--i:9">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#E0AE52" stroke-width="1.6"><path d="M3 17c2-4 5-6 7-6s5 2 7 6M10 3v8" stroke-linecap="round"/></svg></div>
+          <h3>Bafômetro</h3>
+          <ul><li>Parte do álcool sai pela respiração, suor e urina sem ser metabolizada.</li><li>A quantidade expirada é proporcional à do sangue — é o princípio do teste do bafômetro.</li></ul>
+        </div>
+      </div>
+      <p class="src r" style="--i:10"><b>Fontes:</b> Manual MSD · Sanarmed — Metabolismo do álcool (ADH → acetaldeído → acetato) · Hospital Albert Einstein — Álcool no organismo · PortalVR/CMPD — acetaldeído e ressaca.</p>
+    </div>
+  </section>
+
+  <!-- ============ 6 · EFEITOS AGUDOS / ESCALA ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="eyebrow r" style="--i:0">Tópico 02 — Efeitos agudos</div>
+      <h2 class="r" style="--i:1">Da desinibição ao <span class="em">coma</span></h2>
+      <p class="lead r" style="--i:2">Os efeitos dependem da quantidade de álcool no sangue (alcoolemia). Conforme a concentração sobe, o depressor avança região por região do cérebro.</p>
+      <div class="scale">
+        <div class="lvl r" style="--i:3"><div class="bac">euforia<span>desinibição</span></div><div class="desc"><div class="bar" style="background:#6FB573"></div><div><span class="stage">Soltura e bem-estar.</span> Mais falante e sociável, confiança aumentada, leve relaxamento. Os freios do julgamento começam a cair.</div></div></div>
+        <div class="lvl r" style="--i:4"><div class="bac">relaxamento<span>+ reflexos ↓</span></div><div class="desc"><div class="bar" style="background:#A9C2A6"></div><div><span class="stage">Reflexos mais lentos.</span> Atenção e tempo de reação caem, emoções se intensificam — fase crítica para dirigir.</div></div></div>
+        <div class="lvl r" style="--i:5"><div class="bac">confusão<span>+ descoordenação</span></div><div class="desc"><div class="bar" style="background:#E0AE52"></div><div><span class="stage">Embriaguez evidente.</span> Fala enrolada, andar cambaleante, visão dupla, náusea e dificuldade de raciocínio.</div></div></div>
+        <div class="lvl r" style="--i:6"><div class="bac">estupor<span>+ apagão</span></div><div class="desc"><div class="bar" style="background:#D5765A"></div><div><span class="stage">Quase sem reação.</span> Vômitos, possível perda de memória (blackout) e risco de desmaio. O corpo perde o controle.</div></div></div>
+        <div class="lvl r" style="--i:7"><div class="bac">coma<span>risco de morte</span></div><div class="desc"><div class="bar" style="background:#9E4F3B"></div><div><span class="stage">Intoxicação grave.</span> Em concentrações muito altas o álcool deprime a respiração e os batimentos — pode levar ao coma e à morte.</div></div></div>
+      </div>
+      <div class="chips">
+        <span class="chip r" style="--i:8"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#E8C57E" stroke-width="1.5"><path d="M8 2v6l4 2" stroke-linecap="round"/><circle cx="8" cy="8" r="6"/></svg><b style="color:var(--ink);font-weight:600">No corpo:</b>&nbsp;rosto quente, urina frequente, queda de pressão, tontura e desidratação</span>
+      </div>
+      <p class="src r" style="--i:9"><b>Fontes:</b> CISA — estágios da intoxicação pelo álcool (Quadro 1) · Manual MSD · Faça Medicina/Afya — os seis estágios da embriaguez · Jornal da USP — embriaguez e perda de reflexos.</p>
+    </div>
+  </section>
+
+  <!-- ============ 7 · MALEFÍCIOS MENTE & DEPENDÊNCIA ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="eyebrow r" style="--i:0">Tópico 03 — Malefícios · mente</div>
+      <h2 class="r" style="--i:1">Saúde mental e dependência</h2>
+      <p class="lead r" style="--i:2">O alívio momentâneo cobra um preço. Com o uso repetido, o cérebro se adapta — e o que era prazer vira necessidade.</p>
+      <div class="cards c2">
+        <div class="card warn r" style="--i:3">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#D5765A" stroke-width="1.6"><circle cx="10" cy="10" r="7"/><path d="M7 12c1 1.5 5 1.5 6 0" stroke-linecap="round"/><path d="M7 7.5h.01M13 7.5h.01" stroke-linecap="round" stroke-width="2"/></svg></div>
+          <h3>Transtorno por uso de álcool</h3>
+          <ul>
+            <li>Desenvolve-se <b style="color:var(--ink-dim)">tolerância</b>: é preciso beber cada vez mais para o mesmo efeito.</li>
+            <li>Surge a <b style="color:var(--ink-dim)">perda de controle</b> e a busca compulsiva pela bebida, mesmo com prejuízos.</li>
+            <li>No mundo, cerca de <b style="color:var(--ink-dim)">209 milhões de pessoas</b> vivem com dependência de álcool (OMS, 2019).</li>
+          </ul>
+        </div>
+        <div class="card warn r" style="--i:4">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#D5765A" stroke-width="1.6"><path d="M10 17c-4-3-7-6-7-10a4 4 0 0 1 7-1 4 4 0 0 1 7 1c0 4-3 7-7 10Z"/></svg></div>
+          <h3>Síndrome de abstinência</h3>
+          <ul>
+            <li>Ao parar de repente, o corpo reage: tremores, sudorese, ansiedade e insônia.</li>
+            <li>Nos casos graves pode chegar a convulsões e ao <b style="color:var(--ink-dim)">delirium tremens</b> — emergência médica que ameaça a vida.</li>
+            <li>Por isso a interrupção do uso pesado deve ter acompanhamento profissional.</li>
+          </ul>
+        </div>
+        <div class="card warn r" style="--i:5">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#D5765A" stroke-width="1.6"><path d="M3 14c2 0 2-3 4-3s2 3 4 3 2-3 4-3 2 3 2 3" stroke-linecap="round"/><path d="M10 3v4" stroke-linecap="round"/></svg></div>
+          <h3>Depressão e ansiedade</h3>
+          <ul>
+            <li>Sendo depressor, o álcool pode <b style="color:var(--ink-dim)">piorar quadros depressivos</b> a médio prazo, apesar do alívio inicial.</li>
+            <li>Em pessoas vulneráveis, o uso frequente pode desencadear novos transtornos de humor e ansiedade.</li>
+          </ul>
+        </div>
+        <div class="card warn r" style="--i:6">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#D5765A" stroke-width="1.6"><circle cx="10" cy="10" r="7"/><path d="M10 6v4M10 13.5v.5" stroke-linecap="round"/></svg></div>
+          <h3>Cognição e comportamento</h3>
+          <ul>
+            <li>Uso crônico traz perda de memória, dificuldade de concentração e prejuízo nas decisões.</li>
+            <li>A desinibição se associa a acidentes, violência doméstica e comportamentos de risco.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="src r" style="--i:7"><b>Fontes:</b> Manual MSD (tolerância, abstinência, delirium tremens) · OMS — Relatório Global 2024 (209 milhões de dependentes) · Hospital Sírio-Libanês · Einstein — vulnerabilidade emocional e novos quadros.</p>
+    </div>
+  </section>
+
+  <!-- ============ 8 · MALEFÍCIOS CORPO ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="eyebrow r" style="--i:0">Tópico 03 — Malefícios · corpo</div>
+      <h2 class="r" style="--i:1">O corpo paga a conta</h2>
+      <p class="lead r" style="--i:2">A OMS associa o álcool a <b style="color:var(--ink)">mais de 200 doenças e lesões</b>. O risco aumenta com a quantidade e o tempo de consumo — e, segundo a OMS, começa já na primeira dose.</p>
+      <div class="cards c2">
+        <div class="card warn r" style="--i:3">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#D5765A" stroke-width="1.6"><path d="M3 6c4-2 10-2 14 0 0 7-3 11-7 11S3 13 3 6Z" stroke-linejoin="round"/></svg></div>
+          <h3>Fígado</h3>
+          <ul>
+            <li>De 90% a 100% dos bebedores pesados crônicos desenvolvem <b style="color:var(--ink-dim)">gordura no fígado</b> (esteatose), fase ainda reversível.</li>
+            <li>A continuidade leva à hepatite alcoólica e, em até 40% dos casos, à <b style="color:var(--ink-dim)">cirrose</b> — dano irreversível.</li>
+          </ul>
+        </div>
+        <div class="card warn r" style="--i:4">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#D5765A" stroke-width="1.6"><path d="M10 2c3 3 5 6 5 9a5 5 0 0 1-10 0c0-3 2-6 5-9Z"/></svg></div>
+          <h3>Câncer · carcinógeno do Grupo 1</h3>
+          <ul>
+            <li>A agência de câncer da OMS (IARC) classifica o álcool no <b style="color:var(--ink-dim)">grupo de maior risco</b>, ao lado do tabaco.</li>
+            <li>Associado a câncer de boca, faringe, laringe, esôfago, fígado, mama e colorretal.</li>
+          </ul>
+        </div>
+        <div class="card warn r" style="--i:5">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#D5765A" stroke-width="1.6"><path d="M3 11h3l2-5 3 9 2-4h4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Coração e circulação</h3>
+          <ul>
+            <li>Aumenta o risco de <b style="color:var(--ink-dim)">hipertensão, arritmias, infarto e AVC</b>.</li>
+            <li>O excesso crônico sobrecarrega e pode enfraquecer o músculo cardíaco (cardiomiopatia).</li>
+          </ul>
+        </div>
+        <div class="card warn r" style="--i:6">
+          <div class="ico"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="#D5765A" stroke-width="1.6"><circle cx="10" cy="10" r="7"/><path d="M6 10h8M10 6v8" stroke-linecap="round" opacity=".6"/></svg></div>
+          <h3>Outros órgãos</h3>
+          <ul>
+            <li>Pancreatite, gastrite e problemas digestivos.</li>
+            <li>Enfraquece o sistema imunológico, aumentando o risco de infecções como pneumonia e tuberculose.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="src r" style="--i:7"><b>Fontes:</b> CISA — Alcoolismo: 10 danos à saúde (esteatose, cirrose) · OPAS/OMS — +200 doenças e "risco desde a primeira gota" · IARC — álcool carcinógeno Grupo 1 · Futuro da Saúde · Tua Saúde (revisão técnica).</p>
+    </div>
+  </section>
+
+  <!-- ============ 9 · CURIOSIDADES & DADOS ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="eyebrow r" style="--i:0">Tópico 04 — Curiosidades & dados</div>
+      <h2 class="r" style="--i:1">Números que <span class="em">surpreendem</span></h2>
+      <div class="stats">
+        <div class="stat r" style="--i:2"><div class="big">~10 mil</div><div class="lab">anos de história — vestígios de bebida fermentada em Jiahu (China) datam de cerca de 7000 a.C.</div></div>
+        <div class="stat r" style="--i:3"><div class="big">2,6 mi</div><div class="lab">mortes por ano no mundo são atribuídas ao álcool — 1 em cada 20 óbitos (OMS, dados de 2019)</div></div>
+        <div class="stat r" style="--i:4"><div class="big">12 / h</div><div class="lab">mortes por hora no Brasil ligadas ao consumo de álcool, segundo estudo da Fiocruz</div></div>
+        <div class="stat r" style="--i:5"><div class="big">73,5%</div><div class="lab">dos brasileiros que bebem preferem cerveja — a bebida nº 1 do país (LENAD III, 2025)</div></div>
+      </div>
+      <div class="grid-2" style="margin-top:24px">
+        <div class="factbox">
+          <div class="fact r" style="--i:6"><div class="fi"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="#E0AE52" stroke-width="1.6"><path d="M4 16V8l6-4 6 4v8M8 16v-4h4v4" stroke-linejoin="round"/></svg></div><div><div class="b">Os jovens são os mais afetados</div><div class="d">A maior fatia das mortes por álcool (13%) está entre pessoas de 20 a 39 anos.</div></div></div>
+          <div class="fact r" style="--i:7"><div class="fi"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="#E0AE52" stroke-width="1.6"><path d="M10 2v16M6 6l4-4 4 4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="b">Consumo cresce entre as mulheres</div><div class="d">No Brasil, os episódios de consumo abusivo quase dobraram entre mulheres de 2006 a 2023.</div></div></div>
+        </div>
+        <div class="factbox">
+          <div class="fact r" style="--i:8"><div class="fi"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="#E0AE52" stroke-width="1.6"><circle cx="10" cy="10" r="7"/><path d="M10 5v5l3 2" stroke-linecap="round"/></svg></div><div><div class="b">Custo bilionário</div><div class="d">O álcool custou cerca de R$ 18,8 bilhões ao Brasil em 2019, entre saúde e perda de produtividade (Fiocruz).</div></div></div>
+          <div class="fact r" style="--i:9"><div class="fi"><svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="#E0AE52" stroke-width="1.6"><path d="M3 17h14M6 17V9M10 17V5M14 17v-5" stroke-linecap="round"/></svg></div><div><div class="b">Cafeína à frente, álcool em segundo</div><div class="d">O etanol é a segunda droga psicoativa mais consumida do planeta, atrás apenas da cafeína.</div></div></div>
+        </div>
+      </div>
+      <div class="lawbox r" style="--i:10">
+        <div class="li"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E0AE52" stroke-width="1.6"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4Z" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div>
+          <div class="b">No Brasil: legal, mas regulado</div>
+          <div class="d">A venda e o consumo são proibidos para menores de 18 anos. Ao volante, vale a <b style="color:var(--ink)">Lei Seca</b>: tolerância zero — dirigir sob efeito de álcool é infração gravíssima e pode ser crime. A OMS reforça que não existe nível de consumo totalmente seguro.</div>
+        </div>
+      </div>
+      <p class="src r" style="--i:11"><b>Fontes:</b> OMS/ONU News e Agência Brasil — Relatório Global 2024 · Fiocruz — custos e mortes no Brasil · CISA/LENAD III · National Geographic — história · Wikipedia/Ethanol.</p>
+    </div>
+  </section>
+
+  <!-- ============ 10 · REFERÊNCIAS ============ -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="eyebrow r" style="--i:0">Referências</div>
+      <h2 class="r" style="--i:1">Fontes consultadas</h2>
+      <p class="lead r" style="--i:2">Dados de órgãos de saúde, centros de pesquisa e publicações científicas e jornalísticas confiáveis.</p>
+      <div class="refs">
+        <div class="ref r" style="--i:3"><div class="rn">01</div><div class="rt"><b>CISA — Centro de Informações sobre Saúde e Álcool</b>Álcool e SNC · 10 danos à saúde · História do álcool <span>cisa.org.br</span></div></div>
+        <div class="ref r" style="--i:3"><div class="rn">02</div><div class="rt"><b>Manual MSD (versão para profissionais)</b>Intoxicação e abstinência de álcool <span>msdmanuals.com/pt</span></div></div>
+        <div class="ref r" style="--i:4"><div class="rn">03</div><div class="rt"><b>OMS — Relatório Global sobre Álcool e Saúde 2024</b>Dados de 2019 · 2,6 milhões de mortes <span>who.int</span></div></div>
+        <div class="ref r" style="--i:4"><div class="rn">04</div><div class="rt"><b>ONU News & Agência Brasil</b>Cobertura do relatório da OMS sobre álcool <span>news.un.org · agenciabrasil.ebc.com.br</span></div></div>
+        <div class="ref r" style="--i:5"><div class="rn">05</div><div class="rt"><b>Fiocruz</b>Custos e mortes atribuíveis ao álcool no Brasil <span>fiocruz.br</span></div></div>
+        <div class="ref r" style="--i:5"><div class="rn">06</div><div class="rt"><b>LENAD III — 3º Levantamento Nacional de Álcool e Drogas</b>UNIFESP & Ministério da Justiça, 2025 <span>cisa.org.br</span></div></div>
+        <div class="ref r" style="--i:6"><div class="rn">07</div><div class="rt"><b>Vigitel 2023 — Ministério da Saúde</b>Consumo abusivo e beber e dirigir <span>via CISA</span></div></div>
+        <div class="ref r" style="--i:6"><div class="rn">08</div><div class="rt"><b>Jornal da USP</b>Consequências do álcool a curto e longo prazo <span>jornal.usp.br</span></div></div>
+        <div class="ref r" style="--i:7"><div class="rn">09</div><div class="rt"><b>SciELO — Revista da Associação Médica Brasileira</b>Da ação central à dependência química <span>scielo.br</span></div></div>
+        <div class="ref r" style="--i:7"><div class="rn">10</div><div class="rt"><b>Hospital Israelita Albert Einstein</b>Álcool no organismo · efeitos na vida <span>einstein.br</span></div></div>
+        <div class="ref r" style="--i:8"><div class="rn">11</div><div class="rt"><b>Sanarmed</b>Metabolismo do álcool · intoxicação aguda <span>sanarmed.com</span></div></div>
+        <div class="ref r" style="--i:8"><div class="rn">12</div><div class="rt"><b>IARC / OMS</b>Álcool como carcinógeno do Grupo 1 <span>iarc.who.int</span></div></div>
+        <div class="ref r" style="--i:9"><div class="rn">13</div><div class="rt"><b>National Geographic Brasil/Portugal</b>História do consumo de álcool <span>nationalgeographic.pt</span></div></div>
+        <div class="ref r" style="--i:9"><div class="rn">14</div><div class="rt"><b>Wikipedia</b>Ethanol · Alcoholic beverage (verbetes em inglês) <span>en.wikipedia.org</span></div></div>
+      </div>
+      <p class="disc r" style="--i:10">Material educativo elaborado para seminário acadêmico de Psicologia. As informações têm caráter informativo e não substituem orientação médica. Se você ou alguém próximo enfrenta problemas com álcool, o tratamento é gratuito pelo SUS (CAPS-AD). Fotografias: Wikimedia Commons, sob licenças Creative Commons.</p>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<script>
+  const deck=document.getElementById('deck');
+  const stage=document.querySelector('.stage');
+  const slides=[...document.querySelectorAll('.slide')];
+  const total=slides.length;
+  let idx=0;
+  const prog=document.getElementById('prog');
+
+  // scale the fixed 16:9 stage to fit the window
+  function fit(){
+    const s=Math.min(window.innerWidth/1600, window.innerHeight/900);
+    deck.style.setProperty('--s', s);
+  }
+  window.addEventListener('resize',fit); fit();
+
+  function go(n){
+    idx=Math.max(0,Math.min(total-1,n));
+    slides.forEach((s,i)=>s.classList.toggle('active',i===idx));
+    if(prog) prog.style.width=((idx)/(total-1)*100)+'%';
+  }
+  const next=()=>go(idx+1), prev=()=>go(idx-1);
+
+  window.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){prev();}
+    else if(e.key==='Home'){go(0);}
+    else if(e.key==='End'){go(total-1);}
+  });
+
+  // click to navigate: far-left goes back, elsewhere advances
+  stage.addEventListener('click',e=>{
+    (e.clientX/window.innerWidth < 0.16) ? prev() : next();
+  });
+
+  // touch swipe
+  let tx=0,ty=0;
+  window.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+  window.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){ dx<0?next():prev(); }
+  },{passive:true});
+
+  go(0);
+</script>
+</body>
+</html>
