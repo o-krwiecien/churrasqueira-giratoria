@@ -12,7 +12,7 @@ O PDF deste repositório foi gerado em um ambiente sem acesso ao Wikimedia, ent�
 
 ## Como regenerar o PDF
 
-Abra `alcool-seminario.html` no Chrome ou Edge, espere o slide 3 mostrar as fotos e imprima (`Ctrl+P`) → destino "Salvar como PDF" → margens "Nenhuma" → ativar "Imagens de fundo" (em "Mais configurações"). O tamanho de página 1920×1080 já está definido no CSS de impressão.
+Abra `alcool-seminario.html` no Chrome ou Edge, espere o slide 3 mostrar as fotos e imprima (`Ctrl+P`) → destino "Salvar como PDF" → Guardar. O tamanho de página (1920×1080), as margens zero e a impressão das cores de fundo já estão forçados pelo CSS (`print-color-adjust: exact`) — não é preciso marcar "Imagens em segundo plano".
 
 ## O que foi corrigido em relação ao original
 
