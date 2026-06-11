@@ -333,7 +333,7 @@
     *{-webkit-print-color-adjust:exact!important; print-color-adjust:exact!important}
     html,body{overflow:visible;background:#fff}
     .stage{position:static;display:block;height:auto;background:none;overflow:visible;place-items:initial}
-    .deck{position:static;transform:none!important;width:1600px;height:auto;box-shadow:none;overflow:visible;zoom:1.2}
+    .deck{position:static;transform:none!important;width:1600px;height:auto;box-shadow:none;overflow:visible;zoom:1.2;background:var(--bg)}
     .topbar,.progress{display:none}
     .slide{
       position:relative;inset:auto;opacity:1!important;visibility:visible!important;pointer-events:auto;
@@ -343,6 +343,17 @@
     .slide:last-child{page-break-after:auto;break-after:auto}
     .slide .wrap{margin:auto}
     .r{opacity:1!important;transform:none!important;animation:none!important}
+    /* pintura leve: degradês translúcidos viram equivalentes opacos (cores pré-misturadas
+       sobre o fundo). Sem máscaras de transparência, o leitor de PDF navega sem travar. */
+    .slide{background:radial-gradient(1400px 800px at 80% -8%, #2C2313, var(--bg) 62%) var(--bg)}
+    .card{background:#171410}
+    .stat{background:#181410}
+    .lawbox{background:#1C170E}
+    .diagram{background:#191510}
+    .nt,.fact,.chip,.step{background:#171510}
+    .step.tox{background:#211811}
+    .mol-stage{background:radial-gradient(120% 120% at 30% 20%, #282012, #171510)}
+    .ph .frame{background:radial-gradient(90% 130% at 50% -10%, #3C2F19, #2A2113 65%)}
   }
 </style>
 </head>
