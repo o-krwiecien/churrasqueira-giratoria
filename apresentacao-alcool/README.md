@@ -1,6 +1,6 @@
 # Apresentação — Álcool (Etanol) · Seminário de Psicologia
 
-- **`alcool-seminario-1080p.pdf`** — a apresentação pronta, 10 páginas em 16:9 Full HD (1920×1080), uma por slide. Abra em qualquer leitor de PDF, ative o modo de apresentação/tela cheia e passe com as setas.
+- **`alcool-seminario-1080p.pdf`** — a apresentação pronta, 10 páginas em 16:9 Full HD (1920×1080), uma por slide. Cada página é uma imagem achatada em alta resolução (3840×2160), o que torna a navegação instantânea em qualquer leitor de PDF — os PDFs vetoriais do Chrome ficavam lentos por causa dos degradês e transparências do tema. Abra, ative o modo de apresentação/tela cheia e passe com as setas.
 - **`alcool-seminario.html`** — a versão interativa (navegação por setas/clique/swipe, contador de slides, botão de tela cheia — tecla `F`). Arquivo 100% autocontido: fontes embutidas, ilustrações em SVG, nenhuma requisição externa — abre offline em qualquer navegador moderno com visual idêntico.
 - **`original.html`** — o arquivo original recebido, mantido como referência.
 
